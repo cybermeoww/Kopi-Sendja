@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Akun Baru</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-card h2 {
+            text-align: center;
+            color: #6F4E37;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        /* Style Khusus Password & GPS */
+        .password-wrapper,
+        .address-wrapper {
+            position: relative;
+        }
+
+        .password-toggle,
+        .btn-gps-icon {
+            position: absolute;
+            right: 15px;
+            bottom: 12px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .btn-gps-icon {
+            background: #6F4E37;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            bottom: 8px;
+            right: 8px;
+            border: none;
+            font-size: 12px;
+        }
+
+        button#btnRegister {
+            width: 100%;
+            padding: 12px;
+            background: #6F4E37;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        button#btnRegister:hover {
+            background: #5a3e2b;
+        }
+
+        .link-text {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .link-text a {
+            color: #6F4E37;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* --- MODAL VERIFIKASI EMAIL (POPUP) --- */
+        .modal-overlay {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: popIn 0.3s ease;
+        }
+
+        .modal-icon {
+            font-size: 50px;
+            color: #6F4E37;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .btn-gmail {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #ea4335;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .btn-resend {
+            background: none;
+            border: none;
+            color: #6F4E37;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+
+        .btn-resend:disabled {
+            color: #999;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+        <h2>Buat Akun Baru</h2>
+
+        <form id="registerForm">
+            <div class="input-group">
+                <label>Nama</label>
+                <input type="text" id="regName" placeholder="Nama Lengkap" required>
+            </div>
+
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="email@contoh.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Alamat (Otomatis)</label>
+                <div class="address-wrapper">
+                    <textarea id="regAddress" rows="3" placeholder="Klik tombol map..." required></textarea>
+                    <button type="button" class="btn-gps-icon" onclick="getGPS()"><i
+                            class="fas fa-map-marker-alt"></i></button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="regPass" placeholder="Min. 6 Karakter" required>
+                    <i class="fas fa-eye password-toggle" onclick="togglePass()"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Daftar Sebagai</label>
+                <select id="regRole">
+                    <option value="user">Pelanggan</option>
+                    <option value="courier">Kurir</option>
+                </select>
+            </div>
+
+            <button type="submit" id="btnRegister">DAFTAR</button>
+        </form>
+
+        <div class="link-text">Sudah punya akun? <a href="login.html">Login</a></div>
+    </div>
+
+    <div class="modal-overlay" id="verifyModal">
+        <div class="modal-box">
+            <div class="modal-icon"><i class="fas fa-envelope-open-text"></i></div>
+            <div class="modal-title">Cek Email Kamu!</div>
+            <div class="modal-desc">
+                Link verifikasi telah dikirim ke <b id="displayEmail"></b>.<br>
+                Silakan klik link tersebut untuk mengaktifkan akun.
+            </div>
+
+            <a href="https://mail.google.com/" target="_blank" class="btn-gmail">
+                <i class="fab fa-google"></i> Buka Gmail
+            </a>
+
+            <div style="margin-top: 15px;">
+                Belum terima email? <br>
+                <button id="btnResend" class="btn-resend" onclick="resendEmail()">Kirim Ulang</button>
+                <span id="timerText" style="color: #999; display: none;">(60s)</span>
+            </div>
+
+            <br>
+            <a href="login.html" style="font-size: 12px; color: grey;">Sudah verifikasi? Login disini</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, createUserWithEmailAndPassword, doc, setDoc, sendEmailVerification } from "./firebase-config.js";
+
+        let currentUser = null; // Menyimpan user yg baru daftar
+        let cooldownTimer = null;
+
+        // 1. Toggle Password
+        window.togglePass = () => {
+            const p = document.getElementById('regPass');
+            const icon = document.querySelector('.password-toggle');
+            if (p.type === 'password') { p.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); }
+            else { p.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); }
+        };
+
+        // 2. GPS Logic
+        window.getGPS = () => {
+            if (!navigator.geolocation) return Swal.fire('Error', 'Browser tidak support GPS', 'error');
+            const addrField = document.getElementById('regAddress');
+            const originalPlaceholder = addrField.placeholder;
+            addrField.placeholder = "Mencari lokasi...";
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                    const data = await res.json();
+                    if (data && data.display_name) {
+                        addrField.value = data.display_name;
+                        Swal.fire({ icon: 'success', title: 'Lokasi Ditemukan!', timer: 1500, showConfirmButton: false });
+                    }
+                } catch (e) { Swal.fire('Gagal', 'Gagal mengambil nama jalan', 'error'); }
+                addrField.placeholder = originalPlaceholder;
+            }, () => { Swal.fire('Gagal', 'Pastikan GPS Aktif!', 'error'); addrField.placeholder = originalPlaceholder; });
+        };
+
+        // 3. Logic Resend Email dengan Cooldown
+        window.resendEmail = async () => {
+            if (!currentUser) return;
+
+            try {
+                await sendEmailVerification(currentUser);
+                Swal.fire('Terkirim!', 'Email verifikasi baru sudah dikirim.', 'success');
+                startCooldown(60); // Mulai hitung mundur 60 detik
+            } catch (error) {
+                Swal.fire('Error', error.message, 'error');
+            }
+        };
+
+        function startCooldown(seconds) {
+            const btn = document.getElementById('btnResend');
+            const timerText = document.getElementById('timerText');
+
+            btn.disabled = true;
+            timerText.style.display = 'inline';
+            let timeLeft = seconds;
+
+            timerText.innerText = `(${timeLeft}s)`;
+
+            cooldownTimer = setInterval(() => {
+                timeLeft--;
+                timerText.innerText = `(${timeLeft}s)`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(cooldownTimer);
+                    btn.disabled = false;
+                    timerText.style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        // 4. Submit Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const nameInput = document.getElementById('regName');
+            const emailInput = document.getElementById('regEmail');
+            const passInput = document.getElementById('regPass');
+            const addrInput = document.getElementById('regAddress');
+            const roleInput = document.getElementById('regRole');
+
+            if (!nameInput || !emailInput || !passInput || !addrInput || !roleInput) return Swal.fire('System Error', 'ID Mismatch. Refresh halaman.', 'error');
+
+            const name = nameInput.value;
+            const email = emailInput.value;
+            const pass = passInput.value;
+            const address = addrInput.value;
+            const role = roleInput.value;
+
+            if (pass.length < 6) return Swal.fire('Password Lemah', 'Minimal 6 karakter ya!', 'warning');
+
+            const btn = document.getElementById('btnRegister');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            btn.disabled = true;
+
+            try {
+                // 1. Buat Akun
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                currentUser = cred.user; // Simpan user untuk resend email nanti
+
+                // 2. Simpan Data ke Firestore
+                await setDoc(doc(db, "users", cred.user.uid), {
+                    name: name, email: email, address: address, role: role, createdAt: new Date()
+                });
+
+                // 3. Kirim Verifikasi Email
+                await sendEmailVerification(currentUser);
+
+                // 4. Tampilkan Modal Verifikasi
+                document.getElementById('displayEmail').innerText = email;
+                document.getElementById('verifyModal').style.display = 'flex'; // Munculkan Modal
+
+                // Otomatis jalankan cooldown timer pertama kali
+                startCooldown(60);
+
+                btn.innerHTML = 'DAFTAR';
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error(error);
+                let msg = error.message;
+                if (error.code === 'auth/email-already-in-use') msg = "Email sudah terdaftar!";
+                Swal.fire('Gagal', msg, 'error');
+                btn.innerHTML = 'DAFTAR';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

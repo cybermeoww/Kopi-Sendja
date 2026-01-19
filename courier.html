@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Kurir</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="admin-container">
+        <div class="sidebar">
+            <h2 style="text-align:center;">Kurir App</h2>
+            <div class="sidebar-menu active" onclick="showTab('jobs')">
+                <i class="fas fa-motorcycle"></i> &nbsp; Tugas Saya
+            </div>
+            <div class="sidebar-menu" onclick="showTab('pool')">
+                <i class="fas fa-box-open"></i> &nbsp; Order Masuk
+            </div>
+            <div class="sidebar-menu" onclick="window.logout()" style="margin-top:auto; background:#c0392b;">
+                <i class="fas fa-sign-out-alt"></i> &nbsp; Logout
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <h3 id="welcomeText" style="margin-bottom:20px; color:var(--primary);">Halo, Kurir!</h3>
+
+            <div id="jobs" class="section active">
+                <h2 style="color:var(--primary); margin-bottom:15px;">Sedang Diantar</h2>
+                <div id="myJobList" style="display:flex; flex-direction:column; gap:15px;"></div>
+            </div>
+
+            <div id="pool" class="section">
+                <h2 style="color:var(--primary); margin-bottom:15px;">Order Baru Masuk</h2>
+                <div id="incomingList" style="display:flex; flex-wrap:wrap; gap:15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, signOut, onAuthStateChanged, collection, query, where, onSnapshot, updateDoc, doc, getDoc } from "./firebase-config.js";
+
+        let courierUid = null;
+        let courierName = "";
+        let watchId = null; // ID untuk tracking GPS
+
+        // GLOBAL FUNC
+        window.logout = () => signOut(auth).then(() => location.href = "login.html");
+        window.showTab = (id) => {
+            document.querySelectorAll('.section').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.sidebar-menu').forEach(e => e.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        // AUTH
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return location.href = "login.html";
+            courierUid = user.uid;
+            const u = await getDoc(doc(db, "users", courierUid));
+            if(u.exists()) { courierName = u.data().name; document.getElementById('welcomeText').innerText = `Halo, ${courierName}!`; }
+            loadMyJobs(); loadIncoming();
+        });
+
+        // LOAD DATA
+        function loadIncoming() {
+            const q = query(collection(db, "orders"), where("status", "==", "diproses"));
+            onSnapshot(q, (snap) => {
+                const div = document.getElementById('incomingList');
+                if(snap.empty) { div.innerHTML = "<p style='color:grey'>Belum ada order.</p>"; return; }
+                div.innerHTML = "";
+                snap.forEach(d => {
+                    const o = d.data();
+                    div.innerHTML += `
+                        <div class="product-card" style="width:100%; max-width:350px;">
+                            <div class="product-info">
+                                <b>${o.customerName}</b><br><small>${o.customerAddress}</small>
+                                <hr style="margin:5px 0">
+                                Total: Rp ${o.total.toLocaleString()} (${o.paymentMethod.toUpperCase()})
+                                <button onclick="window.takeJob('${d.id}')" class="btn-primary" style="margin-top:10px;">Ambil Order</button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        function loadMyJobs() {
+            const q = query(collection(db, "orders"), where("status", "==", "dikirim"), where("courierId", "==", courierUid));
+            onSnapshot(q, (snap) => {
+                const div = document.getElementById('myJobList');
+                if(snap.empty) { div.innerHTML = "<p style='color:grey'>Tidak ada tugas aktif.</p>"; return; }
+                div.innerHTML = "";
+                snap.forEach(d => {
+                    const o = d.data();
+                    const isLive = (o.kurirLat && o.kurirLng); // Cek apakah GPS sudah nyala
+                    const btnColor = isLive ? "var(--green)" : "#e67e22";
+                    const btnText = isLive ? "GPS AKTIF (Live)" : "Aktifkan GPS (Wajib)";
+                    const btnAnim = isLive ? "animation: pulse 2s infinite;" : "";
+
+                    div.innerHTML += `
+                        <div style="background:white; padding:20px; border-left:5px solid var(--primary); border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                            <h3>Antar ke: ${o.customerName}</h3>
+                            <p><i class="fas fa-map-marker-alt"></i> ${o.customerAddress}</p>
+                            <p><b>Items:</b> ${o.items.map(i=>i.name).join(', ')}</p>
+                            
+                            <div style="display:flex; gap:10px; margin-top:15px;">
+                                <button onclick="window.startTracking('${d.id}')" style="background:${btnColor}; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; flex:1; ${btnAnim}">
+                                    <i class="fas fa-satellite-dish"></i> ${btnText}
+                                </button>
+                                <button onclick="window.finishJob('${d.id}')" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; flex:1;">
+                                    <i class="fas fa-check"></i> Selesai
+                                </button>
+                            </div>
+                            ${isLive ? '<small style="color:green; display:block; margin-top:5px;">Lokasi sedang dikirim ke pelanggan...</small>' : ''}
+                        </div>
+                        <style>@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }</style>
+                    `;
+                });
+            });
+        }
+
+        // ACTIONS
+        window.takeJob = async (id) => {
+            if(!confirm("Ambil?")) return;
+            await updateDoc(doc(db,"orders",id), { status:'dikirim', courierId:courierUid, courierName:courierName });
+            window.showTab('jobs');
+        };
+
+        // --- CORE FUNCTION: LIVE TRACKING ---
+        window.startTracking = (orderId) => {
+            if(!navigator.geolocation) return alert("Browser tidak support GPS");
+            
+            // Minta izin dan mulai tracking
+            watchId = navigator.geolocation.watchPosition(async (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                console.log("GPS Update:", lat, lng);
+
+                // Kirim ke Firebase (Realtime)
+                await updateDoc(doc(db, "orders", orderId), {
+                    kurirLat: lat,
+                    kurirLng: lng
+                });
+
+            }, (err) => {
+                console.error(err);
+                alert("Gagal akses GPS. Pastikan Location nyala!");
+            }, { enableHighAccuracy: true }); // Akurasi tinggi
+            
+            alert("GPS Aktif! Jangan tutup halaman ini selama mengantar.");
+        };
+
+        window.finishJob = async (id) => {
+            if(!confirm("Pesanan selesai?")) return;
+            if(watchId) navigator.geolocation.clearWatch(watchId); // Matikan GPS
+            await updateDoc(doc(db,"orders",id), { status:'selesai' });
+        };
+    </script>
+</body>
+</html>

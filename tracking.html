@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lacak Paket - Real Time</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { margin: 0; padding: 0; background: #f4f4f4; overflow: hidden; }
+        #map { height: 100vh; width: 100%; z-index: 1; }
+        
+        .floating-info {
+            position: absolute; bottom: 30px; left: 20px; right: 20px;
+            background: white; padding: 20px; border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index: 999;
+            animation: slideUp 0.5s ease-out;
+        }
+        .btn-back-float {
+            position: absolute; top: 20px; left: 20px; z-index: 999;
+            background: white; padding: 10px 15px; border-radius: 50px;
+            text-decoration: none; color: var(--primary); font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 5px;
+        }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="btn-back-float"><i class="fas fa-arrow-left"></i> Kembali</a>
+
+    <div id="map"></div>
+
+    <div class="floating-info">
+        <h3 style="margin:0; color:#6F4E37; display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-motorcycle"></i> <span id="kurirName">Mencari Kurir...</span>
+        </h3>
+        <p id="statusText" style="color:grey; margin:5px 0 0 0; font-size:14px;">Menunggu sinyal GPS...</p>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { db, doc, onSnapshot } from "./firebase-config.js";
+
+        // 1. Ambil Order ID dari URL
+        const params = new URLSearchParams(window.location.search);
+        const orderId = params.get('id');
+
+        if(!orderId) { alert("Data tidak ditemukan"); window.location.href='index.html'; }
+
+        // 2. Inisialisasi Peta (Default Jakarta)
+        const map = L.map('map').setView([-6.200000, 106.816666], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Icon Motor
+        const motorIcon = L.icon({
+            iconUrl: 'https://cdn-icons-png.flaticon.com/512/75/75807.png', // Icon motor hitam
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        let marker = null;
+
+        // 3. Listen Perubahan Lokasi Kurir Real-Time
+        onSnapshot(doc(db, "orders", orderId), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // Update Nama
+                document.getElementById('kurirName').innerText = data.courierName || "Kurir Kopi";
+                
+                // Cek Lokasi
+                if (data.kurirLat && data.kurirLng) {
+                    const pos = [data.kurirLat, data.kurirLng];
+                    document.getElementById('statusText').innerText = "Sedang dalam perjalanan ke lokasi Anda.";
+
+                    if (!marker) {
+                        marker = L.marker(pos, {icon: motorIcon}).addTo(map);
+                        map.setView(pos, 16);
+                    } else {
+                        marker.setLatLng(pos); // Pindahkan marker
+                        map.panTo(pos);        // Geser kamera peta
+                    }
+                } else {
+                    document.getElementById('statusText').innerText = "Kurir belum mengaktifkan GPS.";
+                }
+
+                if(data.status === 'selesai') {
+                    alert("Pesanan telah sampai!");
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

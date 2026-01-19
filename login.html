@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="form-box">
+            <h2 style="text-align: center; color: #6F4E37;">Masuk Akun</h2>
+            <br>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="pass-wrapper">
+                        <input type="password" id="password" required>
+                        <i class="fas fa-eye" id="togglePass"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">LOGIN</button>
+            </form>
+            <p style="text-align: center; margin-top: 15px;">
+                Belum punya akun? <a href="register.html" style="color: #6F4E37; font-weight: bold;">Daftar disini</a>
+            </p>
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="index.html" style="color: grey; font-size: 14px;">&larr; Kembali ke Beranda</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, signInWithEmailAndPassword, getDoc, doc, signOut } from "./firebase-config.js";
+
+        // Toggle Password
+        document.getElementById('togglePass').addEventListener('click', function() {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        });
+
+        // Logic Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+
+        try {
+            const cred = await signInWithEmailAndPassword(auth, email, pass);
+            const user = cred.user;
+
+            // --- PERUBAHAN DISINI (LOGIKA SAKTI UNTUK ADMIN) ---
+            if (email === "admin123@gmail.com") {
+                // Jika emailnya admin dummy, langsung lempar ke dashboard admin
+                // Abaikan verifikasi email
+                window.location.href = "admin.html";
+                return; 
+            }
+            // ----------------------------------------------------
+
+            // JIKA BUKAN ADMIN, JALANKAN PROSEDUR NORMAL
+            if(!user.emailVerified) {
+                await signOut(auth);
+                alert("Email belum diverifikasi! Cek inbox anda.");
+                return;
+            }
+
+            // Cek Role Normal
+            const docSnap = await getDoc(doc(db, "users", user.uid));
+            if(docSnap.exists()) {
+                const role = docSnap.data().role;
+                if(role === 'admin') window.location.href = "admin.html";
+                else if(role === 'kurir') window.location.href = "courier.html";
+                else window.location.href = "index.html";
+            } else {
+                // Jaga-jaga kalau user login tapi datanya ga ada di database
+                window.location.href = "index.html";
+            }
+
+        } catch (error) {
+            alert("Login Gagal: " + error.message);
+        }
+    });
+    </script>
+</body>
+</html>

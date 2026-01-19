@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* CSS ADMIN */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 18px;
+            vertical-align: middle;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 12px;
+            width: 12px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #e74c3c;
+        }
+
+        input:checked.rec-toggle+.slider {
+            background-color: #f1c40f;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(14px);
+        }
+
+        .promo-settings {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px dashed #ccc;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .promo-input {
+            width: 70px;
+            padding: 4px;
+            font-size: 11px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .btn-save-mini {
+            font-size: 10px;
+            padding: 3px 8px;
+            cursor: pointer;
+            background: #6F4E37;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+
+        .filter-box {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .date-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-group label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .date-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        /* Tabel Dashboard Detail */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .table-custom th,
+        .table-custom td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+
+        .table-custom th {
+            background-color: #f8f9fa;
+            color: #6F4E37;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .table-custom tr:hover {
+            background-color: #fbfbfb;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 2px;
+        }
+
+        /* Review Card */
+        .review-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid #f1c40f;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .star-gold {
+            color: #f1c40f;
+        }
+
+        .star-gray {
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-container">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <div class="sidebar-menu active" onclick="window.showTab('dashboard')"><i class="fas fa-chart-line"></i>
+                &nbsp; Dashboard</div>
+            <div class="sidebar-menu" onclick="window.showTab('products')"><i class="fas fa-coffee"></i> &nbsp; Produk &
+                Promo</div>
+            <div class="sidebar-menu" onclick="window.showTab('promocodes')"><i class="fas fa-tags"></i> &nbsp; Kode
+                Voucher</div>
+            <div class="sidebar-menu" onclick="window.showTab('chats')"><i class="fas fa-comments"></i> &nbsp; Live Chat
+            </div>
+            <div class="sidebar-menu" onclick="window.showTab('reviews')"><i class="fas fa-star"></i> &nbsp; Ulasan
+                Pembeli</div>
+            <div class="sidebar-menu" onclick="window.logout()" style="margin-top:auto; background:#c0392b;"><i
+                    class="fas fa-sign-out-alt"></i> &nbsp; Logout</div>
+        </div>
+
+        <div class="admin-content">
+
+            <div id="dashboard" class="section active">
+                <h2 style="color: #6F4E37; margin-bottom: 20px;">Laporan Penjualan Detail</h2>
+                <div class="filter-box">
+                    <div class="date-group"><label>Dari:</label><input type="date" id="startDate"></div>
+                    <div class="date-group"><label>Sampai:</label><input type="date" id="endDate"></div>
+                    <button onclick="window.filterOrders()" class="btn-primary"
+                        style="width: auto; height: 38px;">Filter</button>
+                    <button onclick="window.resetFilter()" class="btn-primary"
+                        style="width: auto; height: 38px; background: #95a5a6;">Reset</button>
+                </div>
+                <div
+                    style="background:white; padding:20px; border-radius:10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div style="overflow-x:auto;">
+                        <table class="table-custom" id="salesTable">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Pelanggan</th>
+                                    <th style="min-width: 180px;">Item Dipesan</th>
+                                    <th>Pengiriman</th>
+                                    <th>Pembayaran</th>
+                                    <th>Promo</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTable">
+                                <tr>
+                                    <td colspan="8" style="text-align:center">Memuat...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button onclick="window.downloadPDF()" class="btn-primary"
+                        style="width: auto; margin-top: 20px; background: #e74c3c;">Download PDF</button>
+                </div>
+            </div>
+
+            <div id="products" class="section">
+                <h2 style="color: #6F4E37;">Manajemen Menu</h2>
+                <div style="background:white; padding:20px; border-radius:10px; margin-bottom:20px;">
+                    <div style="display:flex; gap:10px;">
+                        <input id="pName" placeholder="Nama" style="flex:2; padding:10px; border:1px solid #ddd;">
+                        <input id="pPrice" type="number" placeholder="Harga"
+                            style="flex:1; padding:10px; border:1px solid #ddd;">
+                        <input id="pImg" placeholder="Link Gambar" style="flex:2; padding:10px; border:1px solid #ddd;">
+                        <button onclick="window.addProduct()" class="btn-primary"
+                            style="width:auto; padding:0 20px;">+</button>
+                    </div>
+                </div>
+                <div id="productList" style="display:flex; flex-wrap:wrap; gap:15px;"></div>
+            </div>
+
+            <div id="promocodes" class="section">
+                <h2 style="color: #6F4E37;">Kode Voucher</h2>
+                <div style="background:white; padding:20px; border-radius:10px; display:flex; gap:10px;">
+                    <input id="codeName" placeholder="Kode" style="flex:2; padding:10px; border:1px solid #ddd;">
+                    <input id="codeAmount" type="number" placeholder="Potongan"
+                        style="flex:1; padding:10px; border:1px solid #ddd;">
+                    <button onclick="window.addPromoCode()" class="btn-primary">Buat</button>
+                </div>
+                <div id="promoList"></div>
+            </div>
+
+            <div id="chats" class="section">
+                <h2 style="color: #6F4E37;">Live Chat</h2>
+                <div style="display:flex; height:500px; border:1px solid #ddd; background:white;">
+                    <div id="chatList"
+                        style="width:30%; border-right:1px solid #ddd; overflow-y:auto; background:#f8f9fa;"></div>
+                    <div style="width:70%; display:flex; flex-direction:column;">
+                        <div id="adminChatHeader" style="padding:15px; background:var(--primary); color:white;">Pilih
+                            Chat</div>
+                        <div id="adminChatBox" style="flex:1; padding:20px; overflow-y:auto;"></div>
+                        <div style="padding:10px; border-top:1px solid #ddd; display:flex;">
+                            <input id="adminReplyInput" style="flex:1; padding:10px; border:1px solid #ddd;">
+                            <button onclick="window.sendReply()" class="btn-primary"
+                                style="width:auto; margin-left:10px;">Kirim</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reviews" class="section">
+                <h2 style="color: #6F4E37;">Ulasan Pelanggan</h2>
+                <div id="reviewListContainer" style="margin-top:20px;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, signOut, onAuthStateChanged, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, arrayUnion } from "./firebase-config.js";
+
+        let allOrdersData = [];
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+
+        window.logout = () => Swal.fire({ title: 'Logout?', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => { if (r.isConfirmed) signOut(auth).then(() => location.href = "login.html") });
+        window.showTab = (id) => { document.querySelectorAll('.section').forEach(e => e.classList.remove('active')); document.querySelectorAll('.sidebar-menu').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); };
+        window.downloadPDF = () => { const { jsPDF } = window.jspdf; const doc = new jsPDF('l'); doc.text("Laporan Penjualan", 14, 20); doc.autoTable({ html: '#salesTable', startY: 35, styles: { fontSize: 8 } }); doc.save('Laporan.pdf'); };
+
+        onAuthStateChanged(auth, (user) => { if (!user) location.href = "login.html"; else { loadOrders(); loadProducts(); loadPromoCodes(); loadChatList(); loadReviews(); } });
+
+        // A. ORDERS
+        function loadOrders() { onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), s => { allOrdersData = []; s.forEach(d => allOrdersData.push(d.data())); renderOrderTable(allOrdersData); }); }
+        function renderOrderTable(data) {
+            const tb = document.getElementById('orderTable'); tb.innerHTML = "";
+            data.forEach(o => {
+                const date = o.createdAt ? new Date(o.createdAt.seconds * 1000).toLocaleDateString() : '-';
+                const items = (o.items || []).map(i => `<div class="item-row"><span>${i.name} x${i.qty}</span><span style="color:#555">@${i.price}</span></div>`).join('');
+                let promo = o.discountAmount > 0 ? `<span style="color:red; font-weight:bold;">-${o.discountAmount}</span>` : '-';
+                if (o.promoCode) promo += `<br><small>(${o.promoCode})</small>`;
+
+                // Ongkir & Bayar
+                let courier = o.courierType.toUpperCase();
+                let payment = o.paymentMethod.toUpperCase();
+                let shipping = `<b>${courier}</b><br><small>Rp ${o.shippingCost}</small>`;
+
+                tb.innerHTML += `<tr>
+                    <td>${date}</td>
+                    <td><b>${o.customerName}</b><br><small>${o.customerAddress}</small></td>
+                    <td>${items}</td>
+                    <td>${shipping}</td>
+                    <td>${payment}</td>
+                    <td>${promo}</td>
+                    <td><b>Rp ${o.total.toLocaleString()}</b></td>
+                    <td>${o.status}</td>
+                </tr>`;
+            });
+        }
+        window.filterOrders = () => { const s = new Date(document.getElementById('startDate').value), e = new Date(document.getElementById('endDate').value); e.setHours(23, 59, 59); renderOrderTable(allOrdersData.filter(o => { const d = new Date(o.createdAt.seconds * 1000); return d >= s && d <= e; })); };
+        window.resetFilter = () => { renderOrderTable(allOrdersData); };
+
+        // B. PRODUCTS
+        window.addProduct = async () => { const n = document.getElementById('pName').value, p = Number(document.getElementById('pPrice').value), i = document.getElementById('pImg').value; if (!n || !p) return Toast.fire('Error', 'Isi data', 'error'); await addDoc(collection(db, "products"), { name: n, price: p, image: i || 'https://placehold.co/200', isPromo: false, promoPrice: p, isRec: false }); Toast.fire('Sukses', 'Tersimpan', 'success'); document.getElementById('pName').value = ""; };
+        window.delProd = (id) => Swal.fire({ title: 'Hapus?', showCancelButton: true, confirmButtonColor: '#d33' }).then(r => { if (r.isConfirmed) deleteDoc(doc(db, "products", id)) });
+        window.savePromoSettings = async (id) => { const a = document.getElementById('toggle_' + id).checked, v = document.getElementById('inputPromo_' + id).value; await updateDoc(doc(db, "products", id), { isPromo: a, promoPrice: Number(v) }); Toast.fire('Sukses', 'Promo disimpan', 'success'); };
+        window.toggleRec = async (id) => { const a = document.getElementById('toggleRec_' + id).checked; await updateDoc(doc(db, "products", id), { isRec: a }); };
+        function loadProducts() { onSnapshot(collection(db, "products"), s => { document.getElementById('productList').innerHTML = s.docs.map(d => { const p = d.data(); return `<div style="border:1px solid #ddd; padding:10px; width:220px; border-radius:8px;"><img src="${p.image}" style="width:100%; height:100px; object-fit:cover;"><b>${p.name}</b><br>${p.price}<div class="promo-settings"><div style="display:flex; justify-content:space-between;"><span>Promo:</span><label class="switch"><input type="checkbox" id="toggle_${d.id}" ${p.isPromo ? 'checked' : ''}><span class="slider"></span></label></div><div style="margin-top:5px;"><input type="number" id="inputPromo_${d.id}" value="${p.promoPrice || p.price}" class="promo-input"> <button onclick="window.savePromoSettings('${d.id}')" class="btn-save-mini">Save</button></div></div><div class="promo-settings" style="border-color:#f1c40f"><div style="display:flex; justify-content:space-between;"><span>Rekomen:</span><label class="switch"><input type="checkbox" class="rec-toggle" id="toggleRec_${d.id}" ${p.isRec ? 'checked' : ''} onchange="window.toggleRec('${d.id}')"><span class="slider"></span></label></div></div><button onclick="window.delProd('${d.id}')" style="width:100%; margin-top:5px; background:red; color:white; border:none;">Hapus</button></div>`; }).join(''); }); }
+
+        // C. VOUCHER & D. CHAT
+        window.addPromoCode = async () => { await addDoc(collection(db, "promocodes"), { code: document.getElementById('codeName').value.toUpperCase(), amount: Number(document.getElementById('codeAmount').value), createdAt: new Date() }); };
+        function loadPromoCodes() { onSnapshot(query(collection(db, "promocodes"), orderBy("createdAt", "desc")), s => { document.getElementById('promoList').innerHTML = s.docs.map(d => `<div style="padding:10px; border-bottom:1px solid #eee;">${d.data().code} (${d.data().amount}) <button onclick="deleteDoc(doc(db,'promocodes','${d.id}'))" style="color:red; float:right; border:none; background:none;">X</button></div>`).join(''); }); }
+
+        let activeChatId = null;
+        function loadChatList() { onSnapshot(query(collection(db, "chats"), orderBy("lastUpdate", "desc")), s => { document.getElementById('chatList').innerHTML = s.docs.map(d => `<div onclick="window.openChat('${d.id}','${d.data().userName}')" style="padding:15px; cursor:pointer; border-bottom:1px solid #eee;"><b>${d.data().userName}</b><br><small>${d.data().messages.slice(-1)[0].text.substring(0, 20)}...</small></div>`).join(''); }); }
+        window.openChat = (uid, name) => { activeChatId = uid; document.getElementById('adminChatHeader').innerText = "Chat: " + name; onSnapshot(doc(db, "chats", uid), s => { document.getElementById('adminChatBox').innerHTML = s.data().messages.map(m => `<div style="padding:8px; margin:5px; border-radius:5px; width:fit-content; max-width:80%; ${m.sender === 'admin' ? 'background:var(--primary); color:white; margin-left:auto' : 'background:#eee'}">${m.text}</div>`).join(''); }); };
+        window.sendReply = async () => { const t = document.getElementById('adminReplyInput').value; if (t) await updateDoc(doc(db, "chats", activeChatId), { messages: arrayUnion({ sender: 'admin', text: t, time: new Date() }), lastUpdate: new Date() }); document.getElementById('adminReplyInput').value = ""; };
+
+        // E. REVIEWS
+        function loadReviews() {
+            onSnapshot(query(collection(db, "reviews"), orderBy("createdAt", "desc")), (snap) => {
+                const container = document.getElementById('reviewListContainer');
+                if (snap.empty) { container.innerHTML = "<p style='color:grey'>Belum ada ulasan.</p>"; return; }
+                container.innerHTML = snap.docs.map(d => {
+                    const r = d.data();
+                    let stars = ''; for (let i = 1; i <= 5; i++) stars += `<i class="fas fa-star ${i <= r.rating ? 'star-gold' : 'star-gray'}"></i>`;
+                    return `<div class="review-card"><div style="display:flex; justify-content:space-between;"><div><b>${r.customerName}</b></div><div>${stars}</div></div><div style="font-size:12px; margin:5px 0; color:#555;"><b>Item:</b> ${r.itemsSummary} <br> <b>Kurir:</b> ${r.courierType.toUpperCase()}</div><div style="background:#f9f9f9; padding:10px; border-radius:5px; margin-top:5px;">"${r.comment}"</div></div>`;
+                }).join('');
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kopi Sendja</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .cart-icon-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -10px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid white;
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #6F4E37;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+
+        .qr-container img {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .banner-container {
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 15px;
+            margin: 20px 0;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .banner-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .banner-slide {
+            min-width: 100%;
+            height: 100%;
+        }
+
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .address-box {
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .address-box textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .btn-gps {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-save-addr {
+            background: #27ae60;
+            color: white;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 30px;
+            margin: 15px 0;
+        }
+
+        .star-rating i {
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .star-rating i.active {
+            color: #f1c40f;
+        }
+
+        .star-rating i:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-brand">KOPI SENDJA</div>
+        <div class="nav-links"><a onclick="showSection('home')" class="active">Beranda</a><a
+                onclick="showSection('menu')">Menu</a></div>
+        <div class="nav-icons">
+            <a href="login.html" id="navLoginBtn" class="btn-primary" style="width:auto; padding:5px 15px;">Masuk</a>
+            <div id="userNav" style="display:none; align-items:center;">
+                <div class="cart-icon-wrapper" onclick="openCart()"><i class="fas fa-shopping-cart"
+                        style="font-size:18px;"></i><span class="cart-badge" id="cartCount">0</span></div>
+                <i class="fas fa-user-circle" onclick="showSection('profile')"
+                    style="cursor:pointer; font-size:18px; margin-right:15px;"></i>
+                <i class="fas fa-sign-out-alt" id="btnLogout" style="color:red; cursor:pointer; font-size:18px;"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div id="home" class="section active">
+        <div class="hero">
+            <h1>KOPI SENDJA</h1>
+            <p>Diantara aku, kamu, dan secangkir kopi menciptakan kenangan manis di setiap tegukan.</p>
+        </div>
+        <div class="banner-container">
+            <div class="banner-wrapper" id="bannerWrapper">
+                <div class="banner-slide">
+                    <img src="https://api.duniagames.co.id/optimize-image?url=https%3A%2F%2Fapi.duniagames.co.id%2Fapi%2Fcontent%2Fupload%2Ffile%2F3566296321740994157.jpg&format=webp&width=736&signature=e17d0659641f3419f2152a90f82c000c1f59d90000280d45474bf3f3a29a1419"
+                        alt="Promo 1">
+                </div>
+                <div class="banner-slide">
+                    <img src="https://images.squarespace-cdn.com/content/v1/5fa1095912d2fc6dfc63ac9c/1740457838205-M1WK3Y7590FX3L7XRQWY/Petualangan+Rasa+Kopi+Kenangan+x+One+Piece+x+Tahilalats.jpeg"
+                        alt="Promo 2">
+                </div>
+                <div class="banner-slide">
+                    <img src="https://images.squarespace-cdn.com/content/v1/5fa1095912d2fc6dfc63ac9c/74bb3670-b65a-4efa-845b-f45a65d09b9e/Kopi+Kenangan+-+Freezy.jpg"
+                        alt="Promo 3">
+                </div>
+            </div>
+        </div>
+        <div class="section-title">🔥 Sedang Promo</div>
+        <div class="scroll-container" id="promoContainer">
+            <p style="padding:10px; color:grey;">Memuat...</p>
+        </div>
+        <div class="section-title">⭐ Rekomendasi Spesial</div>
+        <div class="scroll-container" id="recContainer">
+            <p style="padding:10px; color:grey;">Memuat...</p>
+        </div>
+    </div>
+
+    <div id="menu" class="section" style="padding:20px;">
+        <h2>Semua Menu</h2>
+        <div style="display:flex; gap:10px; margin:15px 0;"><input id="search" placeholder="Cari..."
+                style="flex:2; padding:10px; border:1px solid #ddd; border-radius:5px;"
+                oninput="window.filterProducts()"><select id="sortSelect"
+                style="flex:1; padding:10px; border:1px solid #ddd; border-radius:5px;"
+                onchange="window.filterProducts()">
+                <option value="default">Urutkan</option>
+                <option value="az">A-Z</option>
+                <option value="low">Termurah</option>
+                <option value="high">Termahal</option>
+            </select></div>
+        <div id="allProductContainer"
+            style="display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px;"></div>
+    </div>
+
+    <div id="profile" class="section" style="padding:20px; max-width:800px; margin:0 auto;">
+        <h2>Profil Saya</h2>
+        <div
+            style="background:white; padding:20px; border-radius:10px; margin:20px 0; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+            <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px;"><i class="fas fa-user-circle"
+                    style="font-size:50px; color:#ccc;"></i>
+                <div>
+                    <h3 id="profName" style="margin:0; color:var(--primary);">-</h3>
+                    <p id="profEmail" style="margin:0; color:grey; font-size:14px;">-</p>
+                </div>
+            </div>
+            <hr style="border:0; border-top:1px solid #eee;">
+            <div class="address-box"><label style="font-weight:bold; font-size:14px; color:#555;">Alamat Pengiriman
+                    (Wajib Diisi):</label><textarea id="profAddress" rows="3"
+                    placeholder="Memuat alamat Anda..."></textarea>
+                <div class="address-actions"><button onclick="window.useGPS()" class="btn-small btn-gps"><i
+                            class="fas fa-map-marker-alt"></i> Gunakan GPS</button><button
+                        onclick="window.saveAddress()" class="btn-small btn-save-addr"><i class="fas fa-save"></i>
+                        Simpan Alamat</button></div>
+            </div>
+        </div>
+        <h3 style="margin-top:20px;">📦 Riwayat Pesanan</h3>
+        <div id="orderHistory" style="margin-top:15px;"></div>
+    </div>
+
+    <div class="chat-btn" id="chatToggle" style="display:none;"><i class="fas fa-comments"></i></div>
+    <div class="chat-box" id="chatWindow">
+        <div class="chat-header"><span>Admin Support</span><span onclick="toggleChat()"
+                style="cursor:pointer;">&times;</span></div>
+        <div class="chat-messages" id="chatContent">
+            <p style="text-align:center; color:grey; font-size:12px; margin-top:20px;">Mulai percakapan...</p>
+        </div>
+        <form id="chatForm" class="chat-input-area"><input type="text" id="chatInput" placeholder="Tulis pesan..."
+                style="flex:1; border:none; outline:none;" autocomplete="off"><button type="submit"
+                style="background:none; border:none; color:#6F4E37; cursor:pointer;"><i
+                    class="fas fa-paper-plane"></i></button></form>
+    </div>
+
+    <div id="cartModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; justify-content:center; align-items:center;">
+        <div
+            style="background:white; padding:25px; width:90%; max-width:450px; border-radius:10px; max-height:90vh; overflow-y:auto;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <h3 id="modalTitle">Keranjang</h3><span
+                    onclick="document.getElementById('cartModal').style.display='none'"
+                    style="cursor:pointer; font-size:24px;">&times;</span>
+            </div>
+            <div id="checkoutStep1">
+                <div id="cartItems" style="margin-bottom:20px; max-height:200px; overflow-y:auto;"></div>
+                <div class="input-group" style="display:flex; gap:5px; margin-bottom:5px;"><input type="text"
+                        id="inputPromo" placeholder="Kode Promo" style="text-transform:uppercase;"><button
+                        onclick="window.checkPromo()" class="btn-primary"
+                        style="width:auto; padding:0 15px;">Pakai</button></div><small id="promoStatus"
+                    style="display:block; margin-bottom:15px; font-weight:bold;"></small>
+                <div class="input-group"><label>Kurir</label><select id="courierSelect"
+                        onchange="window.calculateTotal()">
+                        <option value="gojek">Gojek Instant (Rp 15.000)</option>
+                        <option value="grab">Grab Express (Rp 14.000)</option>
+                        <option value="toko">Kurir Toko (Rp 10.000)</option>
+                    </select></div>
+                <div class="input-group"><label>Metode Pembayaran</label><select id="payMethod">
+                        <option value="cod">COD (Bayar di Tempat)</option>
+                        <option value="dana">DANA (QR Dana)</option>
+                    </select></div>
+                <div style="background:#f8f9fa; padding:15px; border-radius:8px; font-size:14px; margin:15px 0;">
+                    <div>Subtotal: Rp <span id="summarySubtotal">0</span></div>
+                    <div>Ongkir: Rp <span id="summaryShipping">0</span></div>
+                    <div style="color:green;">Diskon: - Rp <span id="summaryDiscount">0</span></div>
+                    <hr>
+                    <div><b>Total: Rp <span id="summaryTotal">0</span></b></div>
+                </div>
+                <button onclick="window.goToPayment()" class="btn-primary">Lanjut ke Pembayaran</button>
+            </div>
+            <div id="checkoutStep2" style="display:none; text-align:center;">
+                <p id="paymentInstruction">Silakan lakukan pembayaran:</p>
+                <div class="qr-container"><img id="qrImage" src="" alt="QR Code" style="display:none;">
+                    <div id="qrText" style="margin-top:15px; font-weight:bold; color:#333; font-size:16px;"></div>
+                </div>
+                <p style="font-size:12px; color:grey; margin-bottom:10px;">Setelah selesai, tekan tombol konfirmasi.</p>
+                <button id="btnConfirmOrder" class="btn-primary" style="background:var(--green); margin-bottom:10px;"><i
+                        class="fas fa-check"></i> Konfirmasi Pesanan</button><br><button onclick="window.backToCart()"
+                    style="background:none; border:none; text-decoration:underline; cursor:pointer; color:#666;">Kembali
+                    / Ganti Metode</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reviewModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:205; justify-content:center; align-items:center;">
+        <div style="background:white; padding:25px; width:90%; max-width:400px; border-radius:10px; text-align:center;">
+            <h3 style="color:#6F4E37;">Beri Ulasan</h3>
+            <p style="color:grey; font-size:13px;">Bagaimana pesanan Anda?</p>
+            <div id="reviewItems" style="font-size:14px; font-weight:bold; margin-bottom:10px;"></div>
+            <div id="reviewCourier" style="font-size:12px; color:#555; margin-bottom:15px;"></div>
+            <div class="star-rating" id="starContainer"><i class="fas fa-star" onclick="setRating(1)"></i><i
+                    class="fas fa-star" onclick="setRating(2)"></i><i class="fas fa-star" onclick="setRating(3)"></i><i
+                    class="fas fa-star" onclick="setRating(4)"></i><i class="fas fa-star" onclick="setRating(5)"></i>
+            </div>
+            <textarea id="reviewComment" rows="3" placeholder="Tulis komentar..."
+                style="width:100%; padding:10px; border-radius:5px; border:1px solid #ddd; font-family:inherit;"></textarea>
+            <div style="margin-top:15px; display:flex; gap:10px;"><button
+                    onclick="document.getElementById('reviewModal').style.display='none'"
+                    style="flex:1; padding:10px; border:none; border-radius:5px; cursor:pointer;">Batal</button><button
+                    onclick="submitReview()" class="btn-primary" style="flex:1;">Kirim Ulasan</button></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db, signOut, onAuthStateChanged, collection, query, orderBy, onSnapshot, getDoc, doc, addDoc, where, getDocs, setDoc, updateDoc, arrayUnion } from "./firebase-config.js";
+
+        let currentUser = null, cart = [], products = [], activeDiscount = 0;
+        let currentReviewOrderId = null, currentRating = 0;
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
+
+        // AUTH & LOAD
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('navLoginBtn').style.display = 'none'; document.getElementById('userNav').style.display = 'flex'; document.getElementById('chatToggle').style.display = 'flex';
+                const u = await getDoc(doc(db, "users", user.uid));
+                if (u.exists()) {
+                    const data = u.data(); document.getElementById('profName').innerText = data.name; document.getElementById('profEmail').innerText = data.email; document.getElementById('profAddress').value = data.address || "";
+                    listenOrders(user.uid); listenChat(user.uid);
+                }
+            } else { document.getElementById('navLoginBtn').style.display = 'block'; document.getElementById('userNav').style.display = 'none'; document.getElementById('chatToggle').style.display = 'none'; }
+            loadProducts(); startBannerSlide();
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => { Swal.fire({ title: 'Keluar?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then((r) => { if (r.isConfirmed) signOut(auth).then(() => location.reload()); }); });
+
+        // REVIEW
+        window.openReviewModal = (id, items, courier) => { currentReviewOrderId = id; currentRating = 0; updateStars(); document.getElementById('reviewItems').innerText = items; document.getElementById('reviewCourier').innerText = "Kurir: " + courier.toUpperCase(); document.getElementById('reviewComment').value = ""; document.getElementById('reviewModal').style.display = 'flex'; };
+        window.setRating = (n) => { currentRating = n; updateStars(); };
+        function updateStars() { document.querySelectorAll('#starContainer i').forEach((s, idx) => { if (idx < currentRating) s.classList.add('active'); else s.classList.remove('active'); }); }
+        window.submitReview = async () => { if (currentRating === 0) return Swal.fire('Rating Kosong', 'Pilih bintang', 'warning'); try { await addDoc(collection(db, "reviews"), { orderId: currentReviewOrderId, userId: currentUser.uid, customerName: document.getElementById('profName').innerText, rating: currentRating, comment: document.getElementById('reviewComment').value, itemsSummary: document.getElementById('reviewItems').innerText, courierType: document.getElementById('reviewCourier').innerText.replace("Kurir: ", ""), createdAt: new Date() }); await updateDoc(doc(db, "orders", currentReviewOrderId), { isReviewed: true }); document.getElementById('reviewModal').style.display = 'none'; Swal.fire('Terima Kasih', 'Ulasan terkirim!', 'success'); } catch (e) { Swal.fire('Error', 'Gagal', 'error'); } };
+
+        // HISTORY
+        function listenOrders(uid) {
+            onSnapshot(query(collection(db, "orders"), where("userId", "==", uid), orderBy("createdAt", "desc")), s => {
+                const box = document.getElementById('orderHistory');
+                if (s.empty) { box.innerHTML = "<p style='color:grey; text-align:center;'>Belum ada pesanan.</p>"; return; }
+                box.innerHTML = s.docs.map(d => {
+                    const o = d.data(); let l = "";
+                    if (o.status === 'dikirim' && o.kurirLat) l = `<a href="tracking.html?id=${d.id}" class="btn-primary" style="background:green; margin-top:5px; text-decoration:none; display:inline-block; font-size:12px; padding:5px 10px;"><i class="fas fa-map"></i> LIVE MAP</a>`;
+                    else if (o.status === 'selesai' && !o.isReviewed) { const itemNames = (o.items || []).map(i => i.name).join(', '); l = `<button onclick="window.openReviewModal('${d.id}', '${itemNames}', '${o.courierType}')" class="btn-primary" style="background:#f1c40f; color:#333; margin-top:5px; font-size:12px; padding:5px 10px;"><i class="fas fa-star"></i> Beri Ulasan</button>`; }
+                    else if (o.status === 'selesai' && o.isReviewed) l = `<small style="color:green;"><i class="fas fa-check-circle"></i> Sudah diulas</small>`;
+                    const itemsHtml = (o.items || []).map(i => `${i.name} (x${i.qty})`).join(', ');
+                    return `<div style="border:1px solid #ddd; padding:15px; margin-bottom:10px; border-radius:10px; background:white; box-shadow:0 2px 5px rgba(0,0,0,0.03);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;"><b style="color:#6F4E37;">Rp ${o.total.toLocaleString()}</b><span style="background:${o.status === 'selesai' ? 'green' : 'orange'}; color:white; padding:2px 8px; border-radius:5px; font-size:11px; text-transform:uppercase; font-weight:bold;">${o.status}</span></div><div style="font-size:13px; color:#333; margin-bottom:5px;"><i class="fas fa-coffee" style="color:#aaa;"></i> ${itemsHtml}</div><div style="font-size:12px; color:#666; border-top:1px dashed #eee; padding-top:5px; margin-top:5px;"><i class="fas fa-map-marker-alt" style="color:#e74c3c;"></i> ${o.customerAddress}</div><div style="font-size:12px; color:#666; margin-top:5px;"><i class="fas fa-wallet" style="color:#6F4E37;"></i> Bayar: <b>${o.paymentMethod.toUpperCase()}</b></div><div style="margin-top:5px; text-align:right;">${l}</div></div>`;
+                }).join('');
+            });
+        }
+
+        // ALAMAT & GPS
+        window.saveAddress = async () => { if (!currentUser) return Swal.fire('Error', 'Login dulu!', 'warning'); const val = document.getElementById('profAddress').value; if (!val.trim()) return Toast.fire({ icon: 'error', title: 'Alamat kosong' }); try { await updateDoc(doc(db, "users", currentUser.uid), { address: val }); Toast.fire({ icon: 'success', title: 'Disimpan' }); } catch (e) { Swal.fire('Error', e.message, 'error'); } };
+        window.useGPS = () => { if (!navigator.geolocation) return Swal.fire('Error', 'Browser tidak support', 'error'); const btn = document.querySelector('.btn-gps'); btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>..."; btn.disabled = true; navigator.geolocation.getCurrentPosition(async (pos) => { try { const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`); const data = await res.json(); if (data && data.display_name) { document.getElementById('profAddress').value = data.display_name; Toast.fire({ icon: 'success', title: 'Lokasi ditemukan' }); } } catch (e) { Toast.fire({ icon: 'error', title: 'Gagal' }); } btn.innerHTML = "<i class='fas fa-map-marker-alt'></i> Gunakan GPS"; btn.disabled = false; }); };
+
+        // BANNER & PRODUCT
+        function startBannerSlide() { let idx = 0; const w = document.getElementById('bannerWrapper'); const s = document.querySelectorAll('.banner-slide'); setInterval(() => { idx++; if (idx >= s.length) idx = 0; w.style.transform = `translateX(${-idx * 100}%)`; }, 3000); }
+        function loadProducts() { onSnapshot(query(collection(db, "products")), s => { products = []; s.forEach(d => products.push({ id: d.id, ...d.data() })); renderHome(); window.filterProducts(); }); }
+        function renderHome() { const pb = document.getElementById('promoContainer'); const rb = document.getElementById('recContainer'); const pi = products.filter(p => p.isPromo); const ri = products.filter(p => p.isRec); pb.innerHTML = pi.length ? pi.map(p => createCard(p)).join('') : "<p style='padding:10px; color:grey'>Kosong</p>"; rb.innerHTML = ri.length ? ri.map(p => createCard(p)).join('') : "<p style='padding:10px; color:grey'>Kosong</p>"; }
+        window.filterProducts = () => { const k = document.getElementById('search').value.toLowerCase(); const s = document.getElementById('sortSelect').value; const c = document.getElementById('allProductContainer'); let f = products.filter(p => p.name.toLowerCase().includes(k)); if (s === 'az') f.sort((a, b) => a.name.localeCompare(b.name)); else if (s === 'low') f.sort((a, b) => getPrice(a) - getPrice(b)); else if (s === 'high') f.sort((a, b) => getPrice(b) - getPrice(a)); c.innerHTML = f.length ? f.map(p => createCard(p)).join('') : "<p style='padding:20px; color:grey'>Tidak ditemukan</p>"; };
+        function getPrice(p) { return (p.isPromo && p.promoPrice) ? p.promoPrice : p.price }
+        function createCard(p) { const img = p.image || 'https://placehold.co/200x200?text=Kopi'; const fp = getPrice(p); const b = p.isPromo ? `<div class="cart-badge" style="position:absolute; top:10px; left:10px; border-radius:5px; padding:3px 8px; border:none; font-size:10px;">PROMO</div>` : ''; const ph = p.isPromo ? `<div style="color:grey; font-size:12px; text-decoration:line-through;">Rp ${p.price.toLocaleString()}</div><div style="color:red; font-weight:bold;">Rp ${fp.toLocaleString()}</div>` : `<div style="color:#6F4E37; font-weight:bold;">Rp ${p.price.toLocaleString()}</div>`; return `<div class="product-card">${b}<img src="${img}" class="product-img"><div class="product-info"><div style="font-weight:bold; height:40px; overflow:hidden;">${p.name}</div>${ph}<button class="btn-add" onclick="window.addToCart('${p.id}','${p.name}',${fp})">Tambah</button></div></div>`; }
+
+        // CART & CHECKOUT
+        window.addToCart = (id, n, p) => { if (!currentUser) return Swal.fire('Info', 'Login dulu', 'info'); let i = cart.find(x => x.id === id); if (i) i.qty++; else cart.push({ id, name: n, price: p, qty: 1 }); updateCart(); Toast.fire({ icon: 'success', title: 'Masuk keranjang' }); };
+        window.changeQty = (x, d) => { cart[x].qty += d; if (cart[x].qty <= 0) cart.splice(x, 1); updateCart(); };
+        function updateCart() { const b = document.getElementById('cartItems'); b.innerHTML = ""; let c = 0; cart.forEach((i, x) => { c += i.qty; b.innerHTML += `<div class="cart-item"><div><b>${i.name}</b><br>Rp ${i.price.toLocaleString()}</div><div class="qty-control"><button class="btn-qty" onclick="window.changeQty(${x},-1)">-</button>${i.qty}<button class="btn-qty" onclick="window.changeQty(${x},1)">+</button></div></div>` }); document.getElementById('cartCount').innerText = c; window.calculateTotal(); }
+        window.checkPromo = async () => { const c = document.getElementById('inputPromo').value.toUpperCase(); const s = await getDocs(query(collection(db, "promocodes"), where("code", "==", c))); if (s.empty) { document.getElementById('promoStatus').innerText = "Kode Salah!"; document.getElementById('promoStatus').style.color = "red"; activeDiscount = 0; Toast.fire({ icon: 'error', title: 'Kode salah' }); } else { activeDiscount = s.docs[0].data().amount; document.getElementById('promoStatus').innerText = "Hemat Rp " + activeDiscount.toLocaleString(); document.getElementById('promoStatus').style.color = "green"; Toast.fire({ icon: 'success', title: 'Promo dipakai' }); } window.calculateTotal(); };
+        window.calculateTotal = () => { let s = 0; cart.forEach(i => s += i.price * i.qty); const cr = document.getElementById('courierSelect').value; let sh = cart.length > 0 ? (cr === 'gojek' ? 15000 : cr === 'grab' ? 14000 : 10000) : 0; let t = s + sh - activeDiscount; if (t < 0) t = 0; document.getElementById('summarySubtotal').innerText = s.toLocaleString(); document.getElementById('summaryShipping').innerText = sh.toLocaleString(); document.getElementById('summaryDiscount').innerText = activeDiscount.toLocaleString(); document.getElementById('summaryTotal').innerText = t.toLocaleString(); return { s, sh, d: activeDiscount, t }; };
+
+        window.goToPayment = () => { if (cart.length === 0) return Swal.fire('Kosong', 'Keranjang kosong', 'info'); document.getElementById('checkoutStep1').style.display = 'none'; document.getElementById('checkoutStep2').style.display = 'block'; const m = document.getElementById('payMethod').value; const i = document.getElementById('qrImage'); const t = document.getElementById('qrText'); const ins = document.getElementById('paymentInstruction'); if (m === 'cod') { ins.innerText = "Pembayaran COD"; i.style.display = 'none'; t.innerHTML = `<i class="fas fa-hand-holding-usd" style="font-size:40px; color:#27ae60; margin-bottom:15px;"></i><br><b>Siapkan Uang Tunai</b><br>Bayar ke kurir saat sampai.`; } else { ins.innerText = "Scan QRIS DANA:"; i.style.display = 'block'; i.src = "./images/WhatsApp Image 2026-01-19 at 12.48.29.jpeg"; t.innerHTML = "Scan pakai aplikasi DANA."; } };
+        window.backToCart = () => { document.getElementById('checkoutStep1').style.display = 'block'; document.getElementById('checkoutStep2').style.display = 'none'; };
+        document.getElementById('btnConfirmOrder').addEventListener('click', async () => { const c = window.calculateTotal(); const ca = document.getElementById('profAddress').value; const cn = document.getElementById('profName').innerText; if (!ca.trim()) { Swal.fire('Alamat Kosong', 'Isi di profil', 'warning'); document.getElementById('cartModal').style.display = 'none'; showSection('profile'); return; } try { const pc = document.getElementById('inputPromo').value.toUpperCase(); await updateDoc(doc(db, "users", currentUser.uid), { address: ca }); await addDoc(collection(db, "orders"), { userId: currentUser.uid, customerName: cn, customerAddress: ca, items: cart, subtotal: c.s, shippingCost: c.sh, discountAmount: c.d, total: c.t, promoCode: (c.d > 0 ? pc : ''), courierType: document.getElementById('courierSelect').value, paymentMethod: document.getElementById('payMethod').value, status: 'diproses', createdAt: new Date(), locationLink: '', isReviewed: false }); Swal.fire({ title: 'Sukses', text: 'Pesanan dibuat', icon: 'success' }); cart = []; activeDiscount = 0; updateCart(); document.getElementById('cartModal').style.display = 'none'; backToCart(); showSection('profile'); } catch (e) { Swal.fire('Error', e.message, 'error'); } });
+
+        // CHAT
+        document.getElementById('chatToggle').onclick = () => document.getElementById('chatWindow').style.display = 'flex'; window.toggleChat = () => document.getElementById('chatWindow').style.display = 'none';
+        function listenChat(uid) { onSnapshot(doc(db, "chats", uid), s => { if (s.exists()) { const m = s.data().messages || []; document.getElementById('chatContent').innerHTML = m.length ? m.map(x => `<div class="msg ${x.sender === 'user' ? 'me' : 'admin'}">${x.text}</div>`).join('') : "<p style='text-align:center; color:grey; font-size:12px; margin-top:20px;'>Mulai percakapan...</p>"; document.getElementById('chatContent').scrollTop = document.getElementById('chatContent').scrollHeight; } }); }
+        document.getElementById('chatForm').onsubmit = async (e) => { e.preventDefault(); const t = document.getElementById('chatInput').value; if (!t.trim()) return; const r = doc(db, "chats", currentUser.uid); try { const s = await getDoc(r); if (!s.exists()) await setDoc(r, { userId: currentUser.uid, userName: document.getElementById('profName').innerText, messages: [{ sender: 'user', text: t, time: new Date() }], lastUpdate: new Date() }); else await updateDoc(r, { messages: arrayUnion({ sender: 'user', text: t, time: new Date() }), lastUpdate: new Date() }); document.getElementById('chatInput').value = ""; } catch (err) { console.error(err); } };
+
+        window.openCart = () => document.getElementById('cartModal').style.display = 'flex'; window.showSection = (i) => { document.querySelectorAll('.section').forEach(e => e.classList.remove('active')); document.getElementById(i).classList.add('active'); window.scrollTo(0, 0); };
+    </script>
+</body>
+
+</html>
