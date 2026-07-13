@@ -5,14 +5,14 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getFirestore, collection, doc, setDoc, getDoc, addDoc, getDocs, updateDoc, deleteDoc, query, where, orderBy, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCZMqJkonPZZd8CqvGC91BxmJ_-bUrp_K8",
-    authDomain: "perkopian-e7151.firebaseapp.com",
-    projectId: "perkopian-e7151",
-    storageBucket: "perkopian-e7151.firebasestorage.app",
-    messagingSenderId: "1078014660908",
-    appId: "1:1078014660908:web:10a94dba61fbe23a499c89",
-    measurementId: "G-1MMDP9WW0B"
-  };
+  apiKey: "AIzaSyBMZQxV-xPgwFMY91stnnNu_sjkxzIPmug",
+  authDomain: "kriyanusantara-6fbf0.firebaseapp.com",
+  projectId: "kriyanusantara-6fbf0",
+  storageBucket: "kriyanusantara-6fbf0.firebasestorage.app",
+  messagingSenderId: "333235907007",
+  appId: "1:333235907007:web:29393d6e17925a0546190a",
+  measurementId: "G-0XFM5F7YQV"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
